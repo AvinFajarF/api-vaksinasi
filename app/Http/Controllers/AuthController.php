@@ -38,7 +38,7 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request, $token)
+    public function login(Request $request)
     {
         $validasi =  $request->validate([
             "username" => "string|required",
@@ -46,11 +46,14 @@ class AuthController extends Controller
         ]);
         try {
 
-            $user = Masyarakat::where("login_token", $token)->first();
-            if ($user) {
                 if (Auth::attempt($validasi)) {
 
+                    $user = Auth::user();
                     Auth::login($user);
+
+                    $findUser = Masyarakat::findOrFail(Auth::user()->id);
+                    $findUser->update(["login_token" => $validasi["login_token"] = md5(Str::random(60))]);
+
 
                     return response()->json([
                         "status" => "ok",
@@ -61,8 +64,39 @@ class AuthController extends Controller
                         "status" => "error",
                         "massage" => "username atau password anda tidak cocok",
                     ], 401);
-                }
             }
+        } catch (\Throwable $th) {
+            return response()->json([
+                "status" => "error",
+                "massage" => $th->getMessage(),
+            ], 401);
+        }
+    }
+
+
+    public function logout($token)
+    {
+        try {
+
+            $user = Masyarakat::where("login_token", $token)->first();
+            if ($user) {
+
+                    Auth::logout($user);
+
+$user->update(["login_token" => '']);
+
+                    return response()->json([
+                        "status" => "ok",
+                        "massage" => "anda berhasil logout",
+                    ], 200);
+
+                }else {
+                    return response()->json([
+                        "status" => "error",
+                        "massage" => "username atau password anda tidak cocok",
+                    ], 401);
+                }
+
         } catch (\Throwable $th) {
             return response()->json([
                 "status" => "error",
@@ -70,4 +104,6 @@ class AuthController extends Controller
             ], 401);
         }
     }
+
+
 }

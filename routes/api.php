@@ -27,10 +27,10 @@ Route::prefix('/v1')->group(function () {
         Route::post('/register', 'register')->name('register');
 
         // login
-        Route::post('/login/{token}', 'login')->name('login');
+        Route::post('/login', 'login')->name('login');
 
         // logout
-        Route::post('/logout', 'logout')->name('logout');
+        Route::post('/logout/{token}', 'logout')->name('logout');
 
     });
 
