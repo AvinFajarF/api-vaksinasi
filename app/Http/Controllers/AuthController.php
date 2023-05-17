@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\LoginResource;
+use App\Models\Medical;
 use App\Models\Societies;
 use App\Models\User;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,7 +30,7 @@ class AuthController extends Controller
 
             $validasi["password"] = Hash::make($validasi["password"]);
 
-            $user = User::create(["username" => $validasi["id_card_number"], "password" => $validasi["password"]]);
+            User::create(["username" => $validasi["id_card_number"], "password" => $validasi["password"]]);
 
 
             $validasi["login_token"] = md5($validasi["id_card_number"]);
@@ -63,6 +63,17 @@ class AuthController extends Controller
             $auth = Auth::attempt(["username" => $request->id_card_number, "password" => $request->password]);
 
             if ($auth) {
+
+
+                // chek midical doctor nya
+                $medical = Medical::where("user_id",$request->user()->id)->first();
+                if ($medical) {
+                    return response()->json([
+                            "name" => $medical->name,
+                            "role" => $medical->role,
+                    ]);
+                }
+
                 $token = md5($request->id_card_number);
 
                 $authentcation = Societies::with('regional')->where("id_card_number", $request->id_card_number)->first();
