@@ -8,7 +8,6 @@ use App\Models\Societies;
 use App\Models\Vaccinations;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
 
 class RegistasiVaksinController extends Controller
 {
