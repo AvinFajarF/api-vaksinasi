@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\VaksinasionResource;
 use App\Models\Consultacions;
+use App\Models\Medical;
 use App\Models\Societies;
+use App\Models\User;
 use App\Models\Vaccinations;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,16 +25,16 @@ class RegistasiVaksinController extends Controller
 
             $user = Societies::where("login_token", $validasi["token"])->first();
 
-            $vaksin = Vaccinations::with(['societies','vaksinator:id,user_id'])->where("society_id", $user->id)->get();
+            $vaksin = Vaccinations::with(['societies', 'vaksinator:id,user_id'])->where("society_id", $user->id)->get();
 
-            if(count($vaksin) == 1){
+            if (count($vaksin) == 1) {
                 return response()->json([
                     'vaccinations' => [
                         'first' => new VaksinasionResource($vaksin[0]),
                         'second' => null,
                     ]
                 ], 200);
-            }elseif (count($vaksin) == 2){
+            } elseif (count($vaksin) == 2) {
                 return response()->json([
                     'vaccinations' => [
                         'first' => new VaksinasionResource($vaksin[0]),
@@ -40,10 +42,6 @@ class RegistasiVaksinController extends Controller
                     ]
                 ], 200);
             }
-
-
-
-
         } catch (\Throwable $th) {
             return response()->json([
                 "pesan" => "pengguna tidak sah",
@@ -79,18 +77,12 @@ class RegistasiVaksinController extends Controller
                     $validasi["society_id"] = $user->id;
 
                     $dosis = Vaccinations::where("society_id", $user->id)->first();
-
-
                     // pengecekan dosisi
                     // if ($dosis && $dosis->dose >= 2) {
                     //     return response()->json([
                     //         "message" => "Masyarakat sudah 2x divaksinasi"
                     //     ]);
                     // }
-
-
-
-
                     $vaksins = Vaccinations::create($validasi);
 
 
@@ -131,12 +123,60 @@ class RegistasiVaksinController extends Controller
                 }
             } else {
                 return response()->json([
-                                    "message" => "Unauthorized user"
+                    "message" => "Unauthorized user"
                 ], 401);
             }
         } catch (\Throwable $th) {
             return response()->json([
-                                "message" => "Unauthorized user",
+                "message" => "Unauthorized user",
+            ], 401);
+        }
+    }
+
+
+    public function update($id, Request $request)
+    {
+
+        $validasi = $request->validate([
+            "status" => "string|required",
+            "token" => "required"
+        ]);
+
+
+
+
+        try {
+
+
+            $user = Societies::where("login_token", $validasi["token"])->first();
+            $userCheck = User::findOrFail($user->id_card_number);
+            $DoctorChek = Medical::where("user_id", $userCheck->id)->first();
+
+
+            if ($user) {
+                if ($DoctorChek) {
+
+
+
+                    $vaksin = Vaccinations::findOrFail($id);
+                    $vaksin->update(["status" => $validasi["status"]]);
+
+                    return response()->json([
+                        "message" => "Vaccination updated successful"
+                    ]);
+                } else {
+                    return response()->json([
+                        "message" => "Unauthorized user",
+                    ], 401);
+                }
+            } else {
+                return response()->json([
+                    "message" => "Unauthorized user",
+                ], 401);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Unauthorized user",
             ], 401);
         }
     }

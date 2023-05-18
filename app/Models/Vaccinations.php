@@ -17,8 +17,17 @@ class Vaccinations extends Model
         "date",
         "society_id",
         "vaccine_id",
-        "medical_id"
+        "medical_id",
+        "status"
     ];
+
+
+    protected $attributes = [
+
+        'status' => 'pending',
+
+    ];
+
 
 
     /**

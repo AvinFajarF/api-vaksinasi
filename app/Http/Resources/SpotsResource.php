@@ -14,9 +14,17 @@ class SpotsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        if($this->spots->capacity == 0){
+            return [
+                "spots" => new SpotsDetailResource($this->spots),
+                "available_vaccines" => new VaksinNullResource($this->vaccine)
+            ];
+        }
+
+
         return [
             "spots" => new SpotsDetailResource($this->spots),
-            "vaksinasi_tersedia" => new VaksinResource($this->vaccine)
+            "available_vaccines" => new VaksinResource($this->vaccine)
         ];
     }
 }

@@ -64,6 +64,7 @@ class AuthController extends Controller
 
             if ($auth) {
 
+                dd(Auth::login(["username" => $request->id_card_number, "password" => $request->password]));
 
                 // chek midical doctor nya
                 $medical = Medical::where("user_id",$request->user()->id)->first();
@@ -92,7 +93,8 @@ class AuthController extends Controller
             }
         } catch (\Throwable $th) {
             return response()->json([
-                "message" => "ID Card Number or Password incorrect"
+                "message" => "ID Card Number or Password incorrect",
+                "error" => $th->getMessage()
             ], 401);
         }
     }

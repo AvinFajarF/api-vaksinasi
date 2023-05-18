@@ -21,23 +21,29 @@ class SpotsController extends Controller
 
         try {
             $user = Societies::where("login_token", $validasi["token"])->first();
-            if($user){
-                $spot = Spot_Vaccines::all();
-              return response()->json([
-                "bintik-bintik" =>  SpotsResource::collection($spot)
-              ]);
-
-            }else{
+            if ($user) {
+                $spot = Spot_Vaccines::with('spots')->get();
+                foreach ($spot as $spotItem) {
+                   if ($spotItem->spots->capacity == 0){
+                    return response()->json([
+                        "spot" =>  SpotsResource::collection($spot)
+                    ]);
+                   }
+                }
                 return response()->json([
-                                                   "message" => "Unauthorized user",
+                    "spot" =>  SpotsResource::collection($spot)
+                ]);
+            } else {
+                return response()->json([
+                    "message" => "Unauthorized user",
 
                 ]);
             }
         } catch (\Throwable $th) {
-           return response()->json([
-                                               "message" => "Unauthorized user",
-
-            ],401);
+            return response()->json([
+                "message" => "Unauthorized user",
+                "error" => $th->getMessage()
+            ], 401);
         }
     }
 
@@ -52,28 +58,24 @@ class SpotsController extends Controller
         try {
 
             $user = Societies::where("login_token", $validasi["token"])->first();
-            if($user){
-            $spot = Spots::findOrFail($id);
-            return response()->json([
-                "date" => Date::now()->format('Y-m-d'),
-                "spot" => new VaksinDetailResource($spot),
-                "vaccinations_count" => $spot->capacity
-            ]);
-
-            }else{
+            if ($user) {
+                $spot = Spots::findOrFail($id);
                 return response()->json([
-                                                "message" => "Unauthorized user",
+                    "date" => Date::now()->format('Y-m-d'),
+                    "spot" => new VaksinDetailResource($spot),
+                    "vaccinations_count" => $spot->capacity
+                ]);
+            } else {
+                return response()->json([
+                    "message" => "Unauthorized user",
 
-                ],401);
+                ], 401);
             }
-
         } catch (\Throwable $th) {
             return response()->json([
-                                            "message" => "Unauthorized user",
+                "message" => "Unauthorized user",
 
-            ],401);
+            ], 401);
         }
-
     }
-
 }

@@ -15,10 +15,10 @@ class SpotsDetailResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "nama" => $this->name,
-            "alamat" => $this->address,
-            "melayani" => $this->serve,
-            "kapasitas" => $this->capacity
+            "name" => $this->name,
+            "address" => $this->address,
+            "serve" => $this->serve,
+            "capacity" => $this->capacity
         ];
     }
 }
