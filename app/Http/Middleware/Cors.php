@@ -15,7 +15,6 @@ class Cors
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return $next($request)->header('Access-Control-Allow-Origin', '*');
-
+        return $next($request);
     }
 }

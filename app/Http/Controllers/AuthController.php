@@ -64,31 +64,32 @@ class AuthController extends Controller
 
             if ($auth) {
 
-                dd(Auth::login(["username" => $request->id_card_number, "password" => $request->password]));
 
                 // chek midical doctor nya
-                $medical = Medical::where("user_id",$request->user()->id)->first();
-                if ($medical) {
-                    return response()->json([
-                            "name" => $medical->name,
-                            "role" => $medical->role,
-                    ]);
-                }
 
                 $token = md5($request->id_card_number);
 
                 $authentcation = Societies::with('regional')->where("id_card_number", $request->id_card_number)->first();
                 $authentcation->login_token = md5($token);
                 $authentcation->save();
+                $medical = Medical::where("user_id", $request->user()->id)->first();
+
 
                 if ($authentcation) {
+                    if ($medical) {
+                        return response()->json([
+                            "name" => $medical->name,
+                            "role" => $medical->role,
+                            "token" => $authentcation->login_token
+                        ]);
+                    }
                     return response()->json([
                         "boddy" => new LoginResource($authentcation)
                     ]);
                 };
             } else {
                 return response()->json([
-                    "message" => "ID Card Number or Password incorrect"
+                    "message" => "ID Card Number or Password incorrect",
                 ], 401);
             }
         } catch (\Throwable $th) {
@@ -127,6 +128,41 @@ class AuthController extends Controller
             }
         } catch (\Throwable $th) {
 
+            return response()->json([
+                "message" => "ID Card Number or Password incorrect"
+            ], 401);
+        }
+    }
+
+
+    public function profile(Request $request)
+    {
+        $validasi = $request->validate([
+            "token" => 'required'
+        ]);
+
+        try {
+
+            $authentcation = Societies::where("login_token", $validasi["token"])->first();
+            $user = User::where("username", $authentcation->id_card_number)->first();
+
+            // check doctor
+            $doctor = Medical::where("user_id", $user->id)->first();
+
+            if ($doctor) {
+                return response()->json([
+                    "name" => $doctor->name,
+                    "role" => $doctor->role,
+                    "spot" => $authentcation->regional
+                ]);
+            }
+
+
+
+            return response()->json([
+                "data" => $authentcation
+            ]);
+        } catch (\Throwable $th) {
             return response()->json([
                 "message" => "ID Card Number or Password incorrect"
             ], 401);

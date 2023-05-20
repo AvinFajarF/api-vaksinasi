@@ -12,6 +12,20 @@ use Illuminate\Support\Facades\Date;
 
 class SpotsController extends Controller
 {
+
+    public function index()
+    {
+        try {
+            $spot = Spots::all();
+
+            return response()->json([
+                "data" => $spot
+            ]);
+    } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
     public function spots(Request $request)
     {
         $validasi = $request->validate([

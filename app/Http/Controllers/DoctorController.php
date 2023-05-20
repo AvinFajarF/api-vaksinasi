@@ -83,4 +83,25 @@ class DoctorController extends Controller
             ], 401);
         }
     }
+
+
+    public function DoctorAll()
+    {
+        try {
+
+            $doctor = Medical::all();
+            return response()->json(
+[
+    "data" => $doctor
+]
+            );
+
+
+
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+    }
+
 }

@@ -19,8 +19,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+Route::get('/test', function () {
+    return response()->json([
+        'test' => 'oke'
+    ]);
 });
 
 
@@ -31,17 +37,21 @@ Route::prefix("/v1")->group(function () {
         Route::post("/auth/login", "login");
         Route::post("/auth/register", "register");
         Route::post("/auth/logout", "logout");
+        Route::get("/profile", "profile");
     });
 
 
     Route::controller(ConsultasiController::class)->group(function () {
 
-        Route::post("/konsultasi", "consultasi");
-        Route::get("/konsultasi", "getConsultasi");
+        Route::post("/consultation", "consultasi");
+        Route::get("/consultation/single", "getConsultasi");
+        Route::get("/consultation", "consultasionAll");
+        Route::put("/consultation/{id}/update", "updateStatus");
     });
 
     Route::controller(SpotsController::class)->group(function () {
         Route::get("/spots", "spots");
+        Route::get("/spots/all", "index");
         Route::get("/spots/{id}", "getSpots");
     });
 
@@ -56,6 +66,7 @@ Route::prefix("/v1")->group(function () {
 
     Route::controller(DoctorController::class)->group(function () {
         Route::get("/konsultasis", "index");
+        Route::get("/doctor", "DoctorAll");
         Route::put("/konsultasi/{id}/update", "update");
     });
 });

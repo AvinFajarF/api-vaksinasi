@@ -37,6 +37,6 @@ class Consultacions extends Model
 
     public function medical()
     {
-        return $this->belongsTo(Medical::class,"id");
+        return $this->belongsTo(Medical::class, "doctor_id", 'id');
     }
 }
