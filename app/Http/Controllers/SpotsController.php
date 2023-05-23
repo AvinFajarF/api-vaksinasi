@@ -91,4 +91,7 @@ class SpotsController extends Controller
         }
     }
 
+
+   
+
 }

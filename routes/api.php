@@ -68,5 +68,7 @@ Route::prefix("/v1")->group(function () {
         Route::get("/konsultasis", "index");
         Route::get("/doctor", "DoctorAll");
         Route::put("/konsultasi/{id}/update", "update");
+        Route::get("/vaksinasi/{id}/{date}", "getSpotsDate");
+        Route::get("/vaksinasi/{id}/{date}/count", "getVaksinasiCount");
     });
 });

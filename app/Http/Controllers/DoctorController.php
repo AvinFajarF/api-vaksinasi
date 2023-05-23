@@ -6,7 +6,9 @@ use App\Models\Consultacions;
 use App\Models\Medical;
 use App\Models\Societies;
 use App\Models\User;
+use App\Models\Vaccinations;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 
 class DoctorController extends Controller
 {
@@ -91,17 +93,74 @@ class DoctorController extends Controller
 
             $doctor = Medical::all();
             return response()->json(
-[
-    "data" => $doctor
-]
+                [
+                    "data" => $doctor
+                ]
             );
-
-
-
         } catch (\Throwable $th) {
             //throw $th;
         }
-
     }
+
+
+    public function getSpotsDate(Request $request, $id, $date)
+    {
+        $validasi = $request->validate([
+            "token" => "required"
+        ]);
+
+        try {
+            $user = Societies::where("login_token", $validasi["token"])->first();
+            if ($user) {
+                return response()->json([
+                    "date" => Date::now()->format('Y-m-d'),
+                    "data" => Vaccinations::with('spots')->where([
+                        ['spot_id', $id],
+                        ['date', $date]
+                    ])->first()
+                ]);
+            } else {
+                return response()->json([
+                    "message" => "Unauthorized user",
+                ], 401);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Unauthorized user",
+                "error" => $th->getMessage()
+            ], 401);
+        }
+    }
+
+
+    public function getVaksinasiCount(Request $request, $id, $date)
+    {
+        $validasi = $request->validate([
+            "token" => "required"
+        ]);
+
+        try {
+            $user = Societies::where("login_token", $validasi["token"])->first();
+            if ($user) {
+                return response()->json([
+                    "data" => Vaccinations::with('spots')->where([
+                        ['spot_id', $id],
+                        ['date', $date]
+                    ])->count()
+                ]);
+            } else {
+                return response()->json([
+                    "message" => "Unauthorized user",
+                ], 401);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Unauthorized user",
+                "error" => $th->getMessage()
+            ], 401);
+        }
+    }
+
+
 
 }
