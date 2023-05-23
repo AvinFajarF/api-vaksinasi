@@ -15,6 +15,7 @@ class VaksinDetailResource extends JsonResource
     public function toArray(Request $request): array
     {
         return[
+            "id" => $this->id,
             "nama" => $this->name,
             "alamat" => $this->address,
             "melayani" => $this->serve,

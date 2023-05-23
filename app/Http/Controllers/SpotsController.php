@@ -64,32 +64,31 @@ class SpotsController extends Controller
 
     public function getSpots(Request $request, $id)
     {
-
         $validasi = $request->validate([
             "token" => "required"
         ]);
 
         try {
-
             $user = Societies::where("login_token", $validasi["token"])->first();
             if ($user) {
-                $spot = Spots::findOrFail($id);
+                $spot = Spots::where('regional_id', $id)->get();
+                $vaccinations_count = $spot->sum('capacity');
                 return response()->json([
                     "date" => Date::now()->format('Y-m-d'),
-                    "spot" => new VaksinDetailResource($spot),
-                    "vaccinations_count" => $spot->capacity
+                    "spot" => VaksinDetailResource::collection($spot),
+                    "vaccinations_count" => $vaccinations_count
                 ]);
             } else {
                 return response()->json([
                     "message" => "Unauthorized user",
-
                 ], 401);
             }
         } catch (\Throwable $th) {
             return response()->json([
                 "message" => "Unauthorized user",
-
+                "error" => $th->getMessage()
             ], 401);
         }
     }
+
 }
